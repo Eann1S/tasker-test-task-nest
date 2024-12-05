@@ -2,9 +2,12 @@ import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { SharedModule } from '@tasker-test-task-nest/shared';
 import { UsersModule } from '../users/users.module';
+import { AuthModule } from '../auth/auth.module';
+import { GracefulShutdownModule } from 'nestjs-graceful-shutdown';
 
 @Module({
   imports: [
+    GracefulShutdownModule.forRoot(),
     SequelizeModule.forRoot({
       dialect: 'postgres',
       host: process.env.DB_HOST,
@@ -16,7 +19,8 @@ import { UsersModule } from '../users/users.module';
       synchronize: true,
     }),
     SharedModule,
-    UsersModule
+    UsersModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [],

@@ -36,4 +36,23 @@ export class UsersService {
       throw new NotFoundException(`User with id ${id} not found`);
     }
   }
+
+  async getUserByEmail(email: string) {
+    try {
+      return await this.userModel.findOne({
+        where: { email },
+        rejectOnEmpty: true,
+      });
+    } catch (error) {
+      Logger.error(error);
+      throw new NotFoundException(`User with email ${email} not found`);
+    }
+  }
+
+  async existsWithEmail(email: string) {
+    const user = await this.userModel.findOne({
+      where: { email },
+    });
+    return !!user;
+  }
 }
