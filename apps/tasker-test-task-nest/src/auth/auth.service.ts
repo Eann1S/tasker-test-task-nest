@@ -14,7 +14,7 @@ import {
 } from '@tasker-test-task-nest/shared';
 import * as argon from 'argon2';
 import { JwtService, TokenExpiredError } from '@nestjs/jwt';
-import { User } from '../users/user.model';
+import { mapUserToDto } from '../users/users.mappings';
 
 @Injectable()
 export class AuthService {
@@ -35,7 +35,7 @@ export class AuthService {
       ...dto,
       password: hashedPassword,
     });
-    const userDto = await this.mapUserToDto(user);
+    const userDto = mapUserToDto(user);
     return userDto;
   }
 
@@ -45,7 +45,7 @@ export class AuthService {
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    const userDto = await this.mapUserToDto(user);
+    const userDto = mapUserToDto(user);
     const accessToken = await this.jwtService.signAsync({
       sub: userDto.id,
       user: userDto,
@@ -68,13 +68,5 @@ export class AuthService {
       }
       throw new UnauthorizedException('Invalid token');
     }
-  }
-
-  async mapUserToDto(user: User): Promise<UserDto> {
-    return {
-      id: user.id,
-      email: user.email,
-      username: user.username,
-    };
   }
 }

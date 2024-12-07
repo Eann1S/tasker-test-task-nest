@@ -4,6 +4,8 @@ import { SharedModule } from '@tasker-test-task-nest/shared';
 import { UsersModule } from '../users/users.module';
 import { AuthModule } from '../auth/auth.module';
 import { GracefulShutdownModule } from 'nestjs-graceful-shutdown';
+import { TasksModule } from '../tasks/tasks.module';
+import { CommentsModule } from '../comments/comments.module';
 
 @Module({
   imports: [
@@ -21,6 +23,8 @@ import { GracefulShutdownModule } from 'nestjs-graceful-shutdown';
     SharedModule,
     UsersModule,
     AuthModule,
+    TasksModule,
+    CommentsModule,
   ],
   controllers: [],
   providers: [],

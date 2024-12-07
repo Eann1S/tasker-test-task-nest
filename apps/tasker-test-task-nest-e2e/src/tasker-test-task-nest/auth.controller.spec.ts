@@ -4,11 +4,10 @@ import {
   CreateUserDto,
   LoginDto,
   RegisterDto,
-  UserDto,
 } from '@tasker-test-task-nest/shared';
 
 describe('Auth Controller', () => {
-  let userData: UserDto & CreateUserDto;
+  let userData: CreateUserDto;
 
   beforeEach(async () => {
     userData = generateUserData();
@@ -21,7 +20,7 @@ describe('Auth Controller', () => {
       const res = await registerUser(dto);
 
       expect(res.status).toBe(201);
-      expect(res.data).toEqual({
+      expect(res.data).toMatchObject({
         id: expect.any(Number),
         email: dto.email,
         username: dto.username,

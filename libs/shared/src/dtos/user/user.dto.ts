@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsNotEmpty } from 'class-validator';
+import { TaskDto } from '../task/task.dto';
 
 export class UserDto {
   @ApiProperty()
@@ -12,4 +13,10 @@ export class UserDto {
   @ApiProperty()
   @IsNotEmpty()
   username!: string;
+
+  @ApiProperty()
+  createdAt!: Date;
+
+  @ApiProperty()
+  updatedAt!: Date;
 }
