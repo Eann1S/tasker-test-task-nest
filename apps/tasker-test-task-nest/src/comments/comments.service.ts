@@ -20,6 +20,8 @@ export class CommentsService {
     taskId: number,
     dto: CreateCommentDto
   ): Promise<CommentDto> {
+    Logger.debug(`Adding comment for task ${taskId}`);
+
     const { content } = dto;
     try {
       const { id } = await this.commentModel.create({
@@ -28,6 +30,7 @@ export class CommentsService {
         content,
       });
       const comment = await this.findComment({ id }, [{ all: true }]);
+      Logger.debug(`Comment added for task ${taskId}`);
       return mapCommentToDto(comment);
     } catch (e) {
       Logger.error(e);
@@ -36,15 +39,21 @@ export class CommentsService {
   }
 
   async deleteComment(userId: number, commentId: number) {
+    Logger.debug(`Deleting comment ${commentId}`);
+
     const comment = await this.findComment({ id: commentId });
     this.checkThatUserIsAuthor(userId, comment);
     await comment.destroy();
+
+    Logger.debug(`Comment ${commentId} deleted`);
   }
 
   async findComment(
     where: WhereOptions<InferAttributes<Comment>>,
     include?: Includeable | Includeable[]
   ) {
+    Logger.debug(`Finding comment where ${JSON.stringify(where)}`)
+
     try {
       return await this.commentModel.findOne({
         where,

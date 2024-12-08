@@ -24,6 +24,8 @@ export class AuthService {
   ) {}
 
   async register(dto: RegisterDto): Promise<UserDto> {
+    Logger.debug(`Registering user with email ${dto.email}`)
+
     const userExists = await this.usersService.existsWithEmail(dto.email);
     if (userExists) {
       throw new ConflictException(
@@ -36,10 +38,14 @@ export class AuthService {
       password: hashedPassword,
     });
     const userDto = mapUserToDto(user);
+
+    Logger.debug(`User registered successfully with email ${dto.email}`);
     return userDto;
   }
 
   async login(dto: LoginDto): Promise<JwtDto> {
+    Logger.debug(`Logging in user with email ${dto.email}`);
+
     const user = await this.usersService.getUserByEmail(dto.email);
     const isPasswordValid = await argon.verify(user.password, dto.password);
     if (!isPasswordValid) {
@@ -50,6 +56,8 @@ export class AuthService {
       sub: userDto.id,
       user: userDto,
     });
+
+    Logger.debug(`User logged in successfully with email ${dto.email}`);
     return { accessToken };
   }
 

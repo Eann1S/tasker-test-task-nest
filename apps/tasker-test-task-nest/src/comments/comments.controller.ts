@@ -17,6 +17,7 @@ import {
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
+  ApiForbiddenResponse,
   ApiOkResponse,
   ApiParam,
 } from '@nestjs/swagger';
@@ -45,6 +46,7 @@ export class CommentsController {
   @ApiOkResponse({
     description: 'Deletes a comment',
   })
+  @ApiForbiddenResponse({ description: 'User is not author of comment' })
   @ApiParam({ name: 'commentId', type: 'number' })
   @Delete(':commentId')
   async deleteComment(

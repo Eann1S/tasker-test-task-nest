@@ -25,6 +25,8 @@ export class TasksService {
   ) {}
 
   async createTask(authorId: number, dto: CreateTaskDto): Promise<TaskDto> {
+    Logger.debug(`Creating task for user ${authorId}`);
+
     const { title, description, status, assigneeId } = dto;
     try {
       const { id } = await this.taskModel.create({
@@ -35,6 +37,7 @@ export class TasksService {
         assigneeId,
       });
       const task = await this.findTask({ id }, [{ all: true }]);
+      Logger.debug(`Created task ${id}`);
       return mapTaskToDto(task);
     } catch (error) {
       Logger.error(error);
@@ -47,10 +50,14 @@ export class TasksService {
     taskId: number,
     dto: UpdateTaskDto
   ): Promise<TaskDto> {
+    Logger.debug(`Updating task ${taskId}`);
+
     const { title, description, status } = dto;
     let task = await this.findTask({ id: taskId }, [{ all: true }]);
     this.checkThatUserIsAuthor(userId, task);
     task = await task.update({ title, description, status });
+
+    Logger.debug(`Updated task ${taskId}`);
     return mapTaskToDto(task);
   }
 
@@ -59,19 +66,27 @@ export class TasksService {
     taskId: number,
     status: TaskStatus
   ): Promise<TaskDto> {
+    Logger.debug(`Updating task status ${taskId}`);
+
     let task = await this.findTask({ id: taskId }, [
       { association: 'author' },
       { association: 'assignee' },
     ]);
     this.checkThatUserIsAssigneeOrAuthor(userId, task);
     task = await task.update({ status });
+
+    Logger.debug(`Updated task status ${taskId}`);
     return mapTaskToDto(task);
   }
 
   async deleteTask(userId: number, taskId: number): Promise<void> {
+    Logger.debug(`Deleting task ${taskId}`);
+
     const task = await this.findTask({ id: taskId });
     this.checkThatUserIsAuthor(userId, task);
     await task.destroy();
+
+    Logger.debug(`Deleted task ${taskId}`);
   }
 
   async assignUserToTask(
@@ -79,9 +94,16 @@ export class TasksService {
     taskId: number,
     assigneeId: number
   ): Promise<void> {
+    Logger.debug(`Assigning user ${assigneeId} to task ${taskId}`);
+
     const task = await this.findTask({ id: taskId });
     this.checkThatUserIsAuthor(userId, task);
-    await task.$set('assignee', [assigneeId]);
+    try {
+      await task.$set('assignee', [assigneeId]);
+    } catch (e) {
+      Logger.error(e);
+      throw new InternalServerErrorException('Could not assign user to task');
+    }
   }
 
   async addObserverToTask(
@@ -89,12 +111,21 @@ export class TasksService {
     taskId: number,
     observerId: number
   ): Promise<void> {
+    Logger.debug(`Adding observer ${observerId} to task ${taskId}`);
+
     const task = await this.findTask({ id: taskId });
     this.checkThatUserIsAuthor(userId, task);
-    await task.$add('observers', [observerId]);
+    try {
+      await task.$add('observers', [observerId]);
+    } catch (e) {
+      Logger.error(e);
+      throw new InternalServerErrorException('Could not add observer to task');
+    }
   }
 
   async getTasks(filter?: TasksQueryFilter): Promise<TaskDto[]> {
+    Logger.debug(`Retrieving tasks with filter ${JSON.stringify(filter)}`);
+
     const where = this.buildWhereConditions(filter);
     const tasks = await this.taskModel.findAll({
       where,
@@ -104,6 +135,8 @@ export class TasksService {
   }
 
   async getTasksByAssigneeId(assigneeId: number): Promise<TaskDto[]> {
+    Logger.debug(`Retrieving tasks for assignee ${assigneeId}`);
+
     const tasks = await this.taskModel.findAll({
       where: { assigneeId },
       include: [{ all: true }],
@@ -112,6 +145,8 @@ export class TasksService {
   }
 
   async getTasksByObserverId(observerId: number): Promise<TaskDto[]> {
+    Logger.debug(`Retrieving tasks for observer ${observerId}`);
+
     const tasks = await this.taskModel.findAll({
       include: [
         {
@@ -126,6 +161,8 @@ export class TasksService {
   }
 
   async getTaskDtoById(id: number): Promise<TaskDto> {
+    Logger.debug(`Retrieving task ${id}`);
+
     const task = await this.findTask({ id }, [{ all: true }]);
     return mapTaskToDto(task);
   }
@@ -134,6 +171,8 @@ export class TasksService {
     where: WhereOptions<InferAttributes<Task>>,
     include?: Includeable | Includeable[]
   ): Promise<Task> {
+    Logger.debug(`Finding task with where ${JSON.stringify(where)}`);
+
     try {
       return await this.taskModel.findOne({
         where,

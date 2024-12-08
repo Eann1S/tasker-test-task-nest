@@ -23,6 +23,8 @@ import {
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiParam,
   ApiQuery,
@@ -51,6 +53,8 @@ export class TasksController {
     description: 'Updates a task by ID, returns updated task',
     type: TaskDto,
   })
+  @ApiForbiddenResponse({ description: 'User is not author of task' })
+  @ApiNotFoundResponse({ description: 'Task not found' })
   @ApiParam({ name: 'taskId', type: 'number' })
   @Put(':taskId')
   async updateTask(
@@ -66,6 +70,10 @@ export class TasksController {
     description: 'Updates a task status by ID, returns updated task',
     type: TaskDto,
   })
+  @ApiForbiddenResponse({
+    description: 'User is not assignee or author of task',
+  })
+  @ApiNotFoundResponse({ description: 'Task not found' })
   @ApiParam({ name: 'taskId', type: 'number' })
   @ApiQuery({ name: 'status', enum: TaskStatus })
   @Put(':taskId/status')
@@ -85,6 +93,8 @@ export class TasksController {
   @ApiOkResponse({
     description: 'Deletes a task by ID',
   })
+  @ApiForbiddenResponse({ description: 'User is not author of task' })
+  @ApiNotFoundResponse({ description: 'Task not found' })
   @ApiParam({ name: 'taskId', type: 'number' })
   @Delete(':taskId')
   async deleteTask(
@@ -98,6 +108,8 @@ export class TasksController {
   @ApiOkResponse({
     description: 'Assigns a user to a task',
   })
+  @ApiForbiddenResponse({ description: 'User is not author of task' })
+  @ApiNotFoundResponse({ description: 'Task not found' })
   @ApiParam({ name: 'taskId', type: 'number' })
   @ApiParam({ name: 'assigneeId', type: 'number' })
   @Post(':taskId/assign/:assigneeId')
@@ -117,6 +129,8 @@ export class TasksController {
   @ApiOkResponse({
     description: 'Adds an observer to a task',
   })
+  @ApiForbiddenResponse({ description: 'User is not author of task' })
+  @ApiNotFoundResponse({ description: 'Task not found' })
   @ApiParam({ name: 'taskId', type: 'number' })
   @ApiParam({ name: 'observerId', type: 'number' })
   @Post(':taskId/observe/:observerId')
@@ -169,6 +183,7 @@ export class TasksController {
     description: 'Returns a task by ID',
     type: TaskDto,
   })
+  @ApiNotFoundResponse({ description: 'Task not found' })
   @ApiParam({ name: 'taskId', type: 'number' })
   @Get(':taskId')
   async getTaskById(@Param('taskId') taskId: number) {

@@ -13,6 +13,7 @@ export class UsersService {
   constructor(@InjectModel(User) private userModel: typeof User) {}
 
   async createUser(dto: CreateUserDto) {
+    Logger.debug(`Creating user ${dto.email}`);
     try {
       return await this.userModel.create({
         email: dto.email,
@@ -26,6 +27,7 @@ export class UsersService {
   }
 
   async getUserById(id: number) {
+    Logger.debug(`Getting user with id ${id}`);
     try {
       return await this.userModel.findOne({
         where: { id },
@@ -38,6 +40,7 @@ export class UsersService {
   }
 
   async getUserByEmail(email: string) {
+    Logger.debug(`Getting user with email ${email}`);
     try {
       return await this.userModel.findOne({
         where: { email },
